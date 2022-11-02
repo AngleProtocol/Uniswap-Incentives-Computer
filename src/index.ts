@@ -42,7 +42,7 @@ app.get('/mainnet', async (req, res) => {
     arrakisPoolAddress: '0x857E0B2eD0E82D5cDEB015E77ebB873C47F99575',
     arrakisGaugeAddress: '0x3785ce82be62a342052b9e5431e9d3a839cfb581',
     gaugeAddress: '0x3785ce82be62a342052b9e5431e9d3a839cfb581',
-    gammaPoolAddress: '0xe980599BF7fa44230c58c270D30cb30c3Db7F99a',
+    gammaPoolAddress: '0xe8f20fd90161de1d5b4cf7e2b5d92932ca06d5f4',
     agEUR: CONTRACTS_ADDRESSES[ChainId.MAINNET]?.agEUR?.AgToken as string,
   };
 
@@ -53,7 +53,7 @@ app.get('/mainnet', async (req, res) => {
     arrakisPoolAddress: '0xEDECB43233549c51CC3268b5dE840239787AD56c',
     arrakisGaugeAddress: '0xEB7547a8a734b6fdDBB8Ce0C314a9E6485100a3C',
     gaugeAddress: '0xEB7547a8a734b6fdDBB8Ce0C314a9E6485100a3C',
-    gammaPoolAddress: '0x717A3276bd6F9e2f0aE447e0ffb45D0fa1c2dc57',
+    gammaPoolAddress: '0xf56abca39c27d5c74f94c901b8c137fdf53b3e80',
     agEUR: CONTRACTS_ADDRESSES[ChainId.MAINNET]?.agEUR?.AgToken as string,
   };
 

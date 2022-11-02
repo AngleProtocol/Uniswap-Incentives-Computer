@@ -6,9 +6,10 @@ import { BigNumber, BigNumberish, Contract, ethers, utils } from 'ethers';
 import { formatUnits } from 'ethers/lib/utils';
 import keccak256 from 'keccak256';
 import { MerkleTree } from 'merkletreejs';
+import moment from 'moment';
 
 import { merkleDistributorABI } from './abis';
-import { getBytes32FromIpfsHash, getIpfsHashFromBytes32, uploadJSONToIPFS } from './ipfs';
+import { getBytes32FromIpfsHash, uploadJSONToIPFS } from './ipfs';
 import { httpProvider } from './provider';
 
 export function BN2Number(bn: BigNumberish, base = 18) {
@@ -30,18 +31,23 @@ export const updateRewards = (rewards: RewardType, newRewards: { [holder: string
   }
 };
 
-export const fetchRewards = async (hash: string) => {
-  const oldIpfsHash = getIpfsHashFromBytes32(hash);
+export const fetchRewards = async (chainId: ChainId, weekId: number) => {
   let oldRewards: RewardType = {};
-
   while (Object.keys(oldRewards).length === 0) {
     try {
       oldRewards = (
-        await axios.get<{ [address: string]: { [gauge: string]: string } }>(`https://dweb.link/ipfs/${oldIpfsHash}`, {
-          timeout: 20000,
-        })
+        await axios.get<{ [address: string]: { [gauge: string]: string } }>(
+          `https://angleprotocol.github.io/uniswapv3-rewards/${
+            (chainId === ChainId.MAINNET ? `mainnet` : `polygon`) + `/rewards_` + weekId?.toString() + `.json`
+          }`,
+          {
+            timeout: 5000,
+          }
+        )
       ).data;
-    } catch {}
+    } catch {
+      console.log('❌ Could not fetch rewards from week', weekId);
+    }
   }
 
   return oldRewards;
@@ -59,22 +65,23 @@ export const logRewards = (rewards: RewardType) => {
 };
 
 export const addLastWeekRewards = async (rewards: RewardType, chainId: ChainId.MAINNET | ChainId.POLYGON) => {
-  const merkleRootDistributor = new Contract(
-    CONTRACTS_ADDRESSES[chainId].MerkleRootDistributor as string,
-    merkleDistributorABI,
-    httpProvider(chainId)
-  );
-  const oldIpfsHash = getIpfsHashFromBytes32((await merkleRootDistributor.tree())[1]);
   let oldRewards: RewardType = {};
-
   while (Object.keys(oldRewards).length === 0) {
+    const weekId = Math.floor(moment().unix() / (7 * 86400)) - 1;
     try {
       oldRewards = (
-        await axios.get<{ [address: string]: { [gauge: string]: string } }>(` https://ipfs.starton.io/ipfs/${oldIpfsHash}`, {
-          timeout: 20000,
-        })
+        await axios.get<{ [address: string]: { [gauge: string]: string } }>(
+          `https://angleprotocol.github.io/uniswapv3-rewards/${
+            (chainId === ChainId.MAINNET ? `mainnet` : `polygon`) + `/rewards_` + weekId?.toString() + `.json`
+          }`,
+          {
+            timeout: 5000,
+          }
+        )
       ).data;
-    } catch {}
+    } catch {
+      console.log('❌ Could not fetch rewards from week', weekId);
+    }
   }
 
   for (const holder of Object.keys(oldRewards)) {
